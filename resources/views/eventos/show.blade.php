@@ -4,11 +4,12 @@
 
 @section('content')
 <div class="row">
-    <!-- Formularço de envio de Pergunta -->
+    <!-- Formulário de envio de Pergunta -->
     <div class="col-md-5 mb-4">
         <div class="card shadow-sm p-3">
             <h4 class="fw-bold mb-3">💬 Faça sua Pergunta</h4>
-            <form action="{{ route('eventos.perguntas.store', $evento->id) }}" method="POST">
+            <!-- CORREÇÃO AQUI: Passando o parâmetro explicitamente como um array mapeando 'id' -->
+            <form action="{{ route('eventos.perguntas.store', ['id' => $evento->id]) }}" method="POST">
                 @csrf
                 <div class="mb-3">
                     <label for="texto" class="form-label text-secondary">Texto da Pergunta</label>
@@ -28,7 +29,7 @@
         </div>
     </div>
 
-    <!-- Lista de Perguntas (TICKET #002) -->
+    <!-- Lista de Perguntas -->
     <div class="col-md-7">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="fw-bold m-0">📋 Perguntas do Evento</h4>
@@ -40,8 +41,14 @@
                 <div class="card-body">
                     <p class="fs-5 mb-2 text-white">{{ $pergunta->texto }}</p>
                     <div class="d-flex justify-content-between align-items-center text-secondary small">
-                        <span>Status: <span class="badge bg-success">{{ $pergunta->status }}</span></span>
+                        <!-- TICKET #003: Exibição segura do nome do autor com operador fallback -->
+                        <span>
+                            👤 Autor: <strong class="text-light">{{ $pergunta->user->name ?? 'Anônimo' }}</strong>
+                        </span>
                         <span>{{ $pergunta->created_at->format('d/m/Y H:i') }}</span>
+                    </div>
+                    <div class="mt-2 text-secondary small">
+                        Status: <span class="badge bg-success">{{ $pergunta->status }}</span>
                     </div>
                 </div>
             </div>
@@ -51,14 +58,11 @@
             </div>
         @endforelse
 
-        
-       <!-- TICKET #002: Renderização dos Botões de Paginação -->
-    @if(method_exists($perguntas, 'links'))
-        <div class="d-flex justify-content-center mt-4">
-            {{ $perguntas->links() }}
-        </div>
-    @endif
-
+        <!-- TICKET #002: Renderização dos Botões de Paginação -->
+        @if(method_exists($perguntas, 'links'))
+            <div class="d-flex justify-content-center mt-4">
+                {{ $perguntas->links() }}
+            </div>
         @endif
     </div>
 </div>
