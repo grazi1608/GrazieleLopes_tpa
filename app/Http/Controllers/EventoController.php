@@ -18,10 +18,12 @@ class EventoController extends Controller
     public function show(Evento $evento)
     {
         $perguntas = $evento->perguntas()
+            ->where('is_public', true)
             ->with('user')
             ->latest()
             ->paginate(10);
 
         return view('eventos.show', compact('evento', 'perguntas'));
     }
+
 }
