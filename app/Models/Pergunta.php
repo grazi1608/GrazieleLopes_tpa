@@ -2,29 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Pergunta extends Model
 {
-    use HasFactory;
+    protected $fillable = ['texto', 'evento_id', 'status'];
 
-
-    protected $fillable = ['evento_id', 'user_id', 'texto', 'status'];
-
-  
-     
-    public function evento(): BelongsTo
+    public function evento()
     {
         return $this->belongsTo(Evento::class);
     }
-
-    
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-    
 }

@@ -1,69 +1,70 @@
 @extends('layouts.app')
 
-@section('title', $evento->titulo . ' — FalaQ')
+@section('title', 'Detalhes do Evento')
 
 @section('content')
-<div class="row">
-    <!-- Formulário de envio de Pergunta -->
-    <div class="col-md-5 mb-4">
-        <div class="card shadow-sm p-3">
-            <h4 class="fw-bold mb-3">💬 Faça sua Pergunta</h4>
-            <!-- CORREÇÃO AQUI: Passando o parâmetro explicitamente como um array mapeando 'id' -->
-            <form action="{{ route('eventos.perguntas.store', ['id' => $evento->id]) }}" method="POST">
-                @csrf
-                <div class="mb-3">
-                    <label for="texto" class="form-label text-secondary">Texto da Pergunta</label>
-
-                    <textarea name="texto" id="texto" rows="4" 
-                              class="form-control bg-dark text-white border-secondary @error('texto') is-invalid @enderror"
-                              placeholder="Digite sua dúvida ou comentário para o palestrante..."></textarea>
-
-                    @error('texto')
-                        <div class="invalid-feedback fw-bold">
-                            {{ $message }}
-                        </div>
-                    @enderror
-                </div>
-                <button type="submit" class="btn btn-primary w-100 fw-bold">Enviar Pergunta</button>
-            </form>
-        </div>
+<div class="container mx-auto px-4 py-6 text-gray-200">
+    <!-- Informações do Evento -->
+    <div class="max-w-4xl mx-auto bg-gray-800 p-6 rounded-lg shadow-md mb-6 border border-gray-700">
+        <h2 class="text-3xl font-bold text-white mb-2">{{ $evento->titulo }}</h2>
+        <p class="text-gray-300 leading-relaxed">{{ $evento->descricao }}</p>
     </div>
 
-    <!-- Lista de Perguntas -->
-    <div class="col-md-7">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold m-0">📋 Perguntas do Evento</h4>
-            <span class="text-secondary small">Total no Banco: {{ $evento->perguntas->count() }}</span>
-        </div>
-
-        @forelse($perguntas as $pergunta)
-            <div class="card mb-3 shadow-sm border-start border-4 border-primary">
-                <div class="card-body">
-                    <p class="fs-5 mb-2 text-white">{{ $pergunta->texto }}</p>
-                    <div class="d-flex justify-content-between align-items-center text-secondary small">
-                        <!-- TICKET #003: Exibição segura do nome do autor com operador fallback -->
-                        <span>
-                            👤 Autor: <strong class="text-light">{{ $pergunta->user->name ?? 'Anônimo' }}</strong>
-                        </span>
-                        <span>{{ $pergunta->created_at->format('d/m/Y H:i') }}</span>
-                    </div>
-                    <div class="mt-2 text-secondary small">
-                        Status: <span class="badge bg-success">{{ $pergunta->status }}</span>
-                    </div>
-                </div>
+    <!-- FORMULÁRIO PARA DIGITAR A PERGUNTA -->
+    <div class="max-w-4xl mx-auto bg-gray-800 p-6 rounded-lg shadow-md mb-6 border border-gray-700">
+        <h3 class="text-xl font-bold text-white mb-4">Faça uma Pergunta</h3>
+        
+        <form action="{{ route('eventos.perguntas.store', $evento) }}" method="POST">
+            @csrf
+            <div class="mb-4">
+                <textarea 
+                    name="conteudo" 
+                    rows="3" 
+                    class="w-full p-3 bg-gray-900 border border-gray-700 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Digite sua pergunta aqui..."
+                    required
+                ></textarea>
             </div>
-        @empty
-            <div class="alert alert-dark text-center p-4">
-                Nenhuma pergunta enviada ainda. Seja o primeiro!
-            </div>
-        @endforelse
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded-md transition duration-150">
+                Enviar Pergunta
+            </button>
+        </form>
+    </div>
 
-        <!-- TICKET #002: Renderização dos Botões de Paginação -->
-        @if(method_exists($perguntas, 'links'))
-            <div class="d-flex justify-content-center mt-4">
+    <!-- Seção de Listagem de Perguntas -->
+    <div class="max-w-4xl mx-auto bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700">
+        <h3 class="text-xl font-bold text-black mb-4 border-b border-gray-700 pb-2">Perguntas da Galera</h3>
+
+        @if($perguntas->isEmpty())
+            <p class="text-gray-400 text-center py-4">Nenhuma pergunta enviada ainda.</p>
+        @else
+            <div class="space-y-4">
+                @foreach($perguntas as $pergunta)
+                    <div class="flex items-center justify-between p-4 bg-gray-900 rounded-md border border-gray-700">
+                        <div class="flex-1 pr-4">
+                            <p class="text-gray-200 font-medium">
+                                {{ $pergunta->texto }}
+                            </p>
+                        </div>
+
+                        <!-- Formulário de Exclusão Corrigido -->
+                        <form action="{{ route('perguntas.destroy', $pergunta) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                            @csrf
+                            @method('DELETE')
+                            <x-danger-button>
+                                Excluir
+                            </x-danger-button>
+                        </form>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Paginação -->
+            <div class="mt-4">
                 {{ $perguntas->links() }}
             </div>
         @endif
     </div>
 </div>
 @endsection
+
