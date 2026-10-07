@@ -17,13 +17,16 @@ class EventoController extends Controller
 
     public function show(Evento $evento)
     {
-        // Removeu o ->where('is_public', true) e o ->with('user') que não existem no banco
+        // Garante o carregamento do relacionamento votos para o Blade verificar o destaque
         $perguntas = $evento->perguntas()
-            ->latest()
+            ->with('votos')
+            ->withCount('votos')
+            ->orderByDesc('votos_count') // Ordenação Decrescente (Critério 7)
             ->paginate(10);
 
         return view('eventos.show', compact('evento', 'perguntas'));
     }
+
 
 
     // SALVAR PERGUNTA: Função que estava faltando e causava o erro 500!
@@ -54,5 +57,16 @@ class EventoController extends Controller
             // FORÇA O RETORNO: Redireciona direto para a URL do evento em vez de usar o back()
             return redirect()->route('eventos.show', $eventoId)->with('success', 'Pergunta excluída com sucesso!');
         }
+
+            // TICKET #011: Método de Votação com a alternância mágica do toggle()
+            public function votar(Pergunta $pergunta)
+            {
+                // toggle insere se não houver, remove se já houver (Critérios 5 e 6)
+                $pergunta->votos()->toggle(auth()->id);
+
+        
+                return redirect()->back();
+            }
+
     
 }

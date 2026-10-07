@@ -22,3 +22,8 @@ Route::post('/eventos/{evento}/perguntas', [EventoController::class, 'storePergu
 
 Route::delete('/perguntas/{pergunta}', [EventoController::class, 'destroyPergunta'])
     ->name('perguntas.destroy');
+
+Route::post('/perguntas/{pergunta}/votar', [App\Http\Controllers\EventoController::class, 'votar'])
+    ->name('perguntas.votar')
+    ->middleware('auth'); 
+

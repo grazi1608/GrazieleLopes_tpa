@@ -36,34 +36,59 @@
         <h3 class="text-xl font-bold text-black mb-4 border-b border-gray-700 pb-2">Perguntas da Galera</h3>
 
         @if($perguntas->isEmpty())
-            <p class="text-gray-400 text-center py-4">Nenhuma pergunta enviada ainda.</p>
-        @else
-            <div class="space-y-4">
-                @foreach($perguntas as $pergunta)
-                    <div class="flex items-center justify-between p-4 bg-gray-900 rounded-md border border-gray-700">
-                        <div class="flex-1 pr-4">
+        <p class="text-gray-400 text-center py-4">Nenhuma pergunta enviada ainda.</p>
+    @else
+        <div class="space-y-4">
+            @foreach($perguntas as $pergunta)
+                <div class="flex items-center justify-between p-4 bg-gray-900 rounded-md border border-gray-700">
+                    
+                    <!-- Bloco do Voto + Texto -->
+                    <div class="flex items-center space-x-4 flex-1 pr-4">
+                        
+                        {{-- TICKET #012: Formulário e Botão de Votação (Upvote) --}}
+                                                    {{-- Botão de Votação (Upvote) --}}
+                                                    <form action="{{ route('perguntas.votar', $pergunta) }}" method="POST">
+                                                        @csrf
+                                                        @php
+                                                            // Destaca apenas se o usuário real estiver logado E já tiver votado
+                                                            $jaVotou = auth()->check() && $pergunta->votos->contains(auth()->id());
+                                                        @endphp
+                                                        
+                                                        <button type="submit" 
+                                                            class="flex flex-col items-center px-3 py-1 rounded transition duration-150 {{ $jaVotou ? 'bg-blue-600 text-white font-bold ring-2 ring-blue-400' : 'bg-gray-800 text-gray-400 hover:bg-gray-700' }}">
+                                                            <span class="text-lg leading-none">▲</span>
+                                                            <span class="text-xs font-bold mt-1">{{ $pergunta->votos_count ?? 0 }}</span>
+                                                        </button>
+                                                    </form>
+                        
+
+
+                        <!-- Texto da Pergunta -->
+                        <div>
                             <p class="text-gray-200 font-medium">
                                 {{ $pergunta->texto }}
                             </p>
                         </div>
-
-                        <!-- Formulário de Exclusão Corrigido -->
-                        <form action="{{ route('perguntas.destroy', $pergunta) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
-                            @csrf
-                            @method('DELETE')
-                            <x-danger-button>
-                                Excluir
-                            </x-danger-button>
-                        </form>
                     </div>
-                @endforeach
-            </div>
 
-            <!-- Paginação -->
-            <div class="mt-4">
-                {{ $perguntas->links() }}
-            </div>
-        @endif
+                    <!-- Formulário de Exclusão -->
+                    <form action="{{ route('perguntas.destroy', $pergunta) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                        @csrf
+                        @method('DELETE')
+                        <x-danger-button>
+                            Excluir
+                        </x-danger-button>
+                    </form>
+                </div>
+            @endforeach
+        </div>
+
+        <!-- Paginação -->
+        <div class="mt-4">
+            {{ $perguntas->links() }}
+        </div>
+    @endif
+
     </div>
 </div>
 @endsection

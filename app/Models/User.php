@@ -34,4 +34,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Pergunta::class);
     }
+        // TICKET #010: Relacionamento Inverso de Votos
+        public function perguntasVotadas()
+        {
+            return $this->belongsToMany(Pergunta::class, 'pergunta_user')->withTimestamps();
+        }
+    
 }

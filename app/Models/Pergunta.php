@@ -12,4 +12,10 @@ class Pergunta extends Model
     {
         return $this->belongsTo(Evento::class);
     }
+
+    // TICKET #010: Relacionamento de Votos (Muitos para Muitos)
+    public function votos()
+    {
+        return $this->belongsToMany(User::class, 'pergunta_user')->withTimestamps();
+    }
 }
